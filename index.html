@@ -1,0 +1,141 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fff4f5">
+  <title>Our Little Universe | Photobooth ♡</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#home">♡ Our Little Universe</a>
+    <span class="top-note">made with love</span>
+  </header>
+
+  <main id="home">
+    <section class="intro">
+      <span class="eyebrow">A LITTLE MOMENT, JUST US TWO</span>
+      <h1>Our Little <span>Photobooth</span> ♡</h1>
+      <p>Four pictures, a thousand memories.</p>
+    </section>
+
+    <section class="booth">
+      <div class="camera-card">
+        <div class="section-heading">
+          <span>01 / THE CAMERA</span>
+          <span class="live-dot">● LIVE</span>
+        </div>
+
+        <div class="camera-frame">
+          <video id="video" autoplay playsinline muted></video>
+          <div id="cameraPlaceholder" class="camera-placeholder">
+            <span class="camera-emoji">♡</span>
+            <h2>Ready for a cute picture?</h2>
+            <p>Turn on your camera and let's make memories.</p>
+          </div>
+          <div id="countdown" class="countdown" aria-live="assertive"></div>
+          <span class="camera-label">YOU + ME, ALWAYS</span>
+        </div>
+
+        <p id="status" class="status" role="status">
+          Your camera is waiting for permission.
+        </p>
+
+        <div class="camera-actions">
+          <button id="startCamera" class="btn btn-primary">
+            ♡ Turn on camera
+          </button>
+          <button id="startSession" class="btn btn-dark" disabled>
+            Take 4 photos ✨
+          </button>
+        </div>
+
+        <button id="stopCamera" class="text-button" disabled>
+          Turn camera off
+        </button>
+      </div>
+
+      <div class="result-card">
+        <div class="section-heading">
+          <span>02 / OUR PHOTO STRIP</span>
+          <span id="shotCount">0 / 4 photos</span>
+        </div>
+
+        <div class="strip-stage">
+          <canvas id="stripCanvas" width="600" height="1600"
+            aria-label="Preview of your four-photo strip"></canvas>
+          <div id="emptyStrip" class="empty-strip">
+            <span>♡</span>
+            <p>Your memories will appear here.</p>
+          </div>
+        </div>
+
+        <p id="resultMessage" class="result-message">
+          Your little collection is waiting to be made.
+        </p>
+
+        <button id="download" class="btn btn-primary full" disabled>
+          ↓ Download our photo strip
+        </button>
+        <button id="retake" class="btn btn-outline full" disabled>
+          ↻ Start again
+        </button>
+      </div>
+    </section>
+
+    <section class="customize">
+      <div class="section-heading">
+        <span>03 / MAKE IT YOURS</span>
+      </div>
+
+      <label for="filter">Choose your photo filter</label>
+      <div class="filter-list">
+        <button class="filter-option active" data-filter="original">
+          <span class="filter-swatch swatch-original">♡</span>
+          Original
+        </button>
+        <button class="filter-option" data-filter="rosy">
+          <span class="filter-swatch swatch-rosy">♡</span>
+          Rosy
+        </button>
+        <button class="filter-option" data-filter="vintage">
+          <span class="filter-swatch swatch-vintage">♡</span>
+          Vintage
+        </button>
+        <button class="filter-option" data-filter="mono">
+          <span class="filter-swatch swatch-mono">♡</span>
+          B&W
+        </button>
+      </div>
+
+      <label>Choose a sticker</label>
+      <div class="sticker-list">
+        <button class="sticker-option active" data-sticker="♡">♡ Hearts</button>
+        <button class="sticker-option" data-sticker="♥">♥ Love</button>
+        <button class="sticker-option" data-sticker="✿">✿ Flowers</button>
+        <button class="sticker-option" data-sticker="✨">✨ Sparkles</button>
+        <button class="sticker-option" data-sticker="">None</button>
+      </div>
+
+      <label for="caption">Your little love note</label>
+      <input id="caption" type="text" maxlength="50"
+        value="my favorite person ♡"
+        placeholder="Write something sweet...">
+
+      <p class="privacy-note">
+        ♡ Your photos stay in this browser session unless you download them.
+        They aren't uploaded to a server by this page.
+      </p>
+    </section>
+
+    <footer>
+      <p>Made with love, for my favorite person ♡</p>
+      <span>you and me, in every little moment.</span>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
