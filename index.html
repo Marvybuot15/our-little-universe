@@ -11,17 +11,40 @@
 <body>
   <header class="topbar">
     <a class="brand" href="#home">♡ Our Little Universe</a>
-    <span class="top-note">made with love</span>
+    <span class="top-note">made for everyone</span>
   </header>
 
   <main id="home">
     <section class="intro">
-      <span class="eyebrow">A LITTLE MOMENT, JUST US TWO</span>
+      <span class="eyebrow">A LITTLE MOMENT, YOUR WAY</span>
       <h1>Our Little <span>Photobooth</span> ♡</h1>
-      <p>Four pictures, a thousand memories.</p>
+      <p>Make memories with a special someone, friends, family, or just for yourself.</p>
+    </section>
+
+    <section class="session-picker" aria-labelledby="sessionPickerTitle">
+      <div>
+        <span class="eyebrow">MAKE IT YOURS</span>
+        <h2 id="sessionPickerTitle">How many photos?</h2>
+        <p>Choose your photo strip length.</p>
+      </div>
+      <div class="session-count-options" role="group" aria-label="Number of photos">
+        <button class="session-count-option" data-photo-count="2" aria-pressed="false">
+          <span class="count-preview count-preview-two" aria-hidden="true"><i></i><i></i></span>
+          <strong>2 photos</strong>
+        </button>
+        <button class="session-count-option" data-photo-count="3" aria-pressed="false">
+          <span class="count-preview count-preview-three" aria-hidden="true"><i></i><i></i><i></i></span>
+          <strong>3 photos</strong>
+        </button>
+        <button class="session-count-option active" data-photo-count="4" aria-pressed="true">
+          <span class="count-preview count-preview-four" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <strong>4 photos</strong>
+        </button>
+      </div>
     </section>
 
     <section class="booth">
+      <div class="camera-setup-column">
       <div class="camera-card">
         <div class="section-heading">
           <span>01 / THE CAMERA</span>
@@ -36,7 +59,8 @@
             <p>Turn on your camera and let's make memories.</p>
           </div>
           <div id="countdown" class="countdown" aria-live="assertive"></div>
-          <span class="camera-label">YOU + ME, ALWAYS</span>
+          <div id="posePrompt" class="pose-prompt" aria-live="polite"></div>
+          <span class="camera-label">MAKE A MEMORY</span>
         </div>
 
         <p id="status" class="status" role="status">
@@ -45,21 +69,108 @@
 
         <div class="camera-actions">
           <button id="startCamera" class="btn btn-primary">
-            ♡ Turn on camera
+            <svg class="camera-button-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 7.5h3l1.5-2h7l1.5 2h3A1.5 1.5 0 0 1 21.5 9v9A1.5 1.5 0 0 1 20 19.5H4A1.5 1.5 0 0 1 2.5 18V9A1.5 1.5 0 0 1 4 7.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+              <circle cx="12" cy="13.5" r="3.5" stroke="currentColor" stroke-width="1.8"/>
+            </svg>
+            Start Capture
           </button>
           <button id="startSession" class="btn btn-dark" disabled>
             Take 4 photos ✨
           </button>
         </div>
 
+        <div class="record-actions">
+          <button id="startRecording" class="btn btn-record" disabled>
+            <span class="record-dot" aria-hidden="true"></span>
+            Record a moment
+          </button>
+          <button id="stopRecording" class="btn btn-record-stop" type="button" hidden>
+            Stop recording
+          </button>
+        </div>
+        <p id="recordingStatus" class="recording-status" role="status" aria-live="polite">
+          Video recording starts with the camera (no audio). Stop it any time.
+        </p>
+
         <button id="stopCamera" class="text-button" disabled>
           Turn camera off
         </button>
       </div>
 
+      <section class="customize">
+        <div class="section-heading">
+          <span>02 / MAKE IT YOURS</span>
+        </div>
+
+        <label>Choose your pose vibe</label>
+        <div class="choice-list pose-list" role="group" aria-label="Pose inspiration">
+          <button class="choice-option pose-option active" data-pose-style="sweet" aria-pressed="true">♡ Sweet</button>
+          <button class="choice-option pose-option" data-pose-style="playful" aria-pressed="false">✦ Playful</button>
+          <button class="choice-option pose-option" data-pose-style="cozy" aria-pressed="false">☁ Cozy</button>
+        </div>
+
+        <label for="filter">Choose your photo filter</label>
+        <div class="filter-list">
+          <button class="filter-option active" data-filter="original">
+            <span class="filter-swatch swatch-original">♡</span>
+            Original
+          </button>
+          <button class="filter-option" data-filter="rosy">
+            <span class="filter-swatch swatch-rosy">♡</span>
+            Rosy
+          </button>
+          <button class="filter-option" data-filter="vintage">
+            <span class="filter-swatch swatch-vintage">♡</span>
+            Vintage
+          </button>
+          <button class="filter-option" data-filter="mono">
+            <span class="filter-swatch swatch-mono">♡</span>
+            B&amp;W
+          </button>
+        </div>
+
+        <label for="caption">Add a caption</label>
+        <input id="caption" type="text" maxlength="50"
+          value="a little moment ♡"
+          placeholder="Add a caption...">
+
+        <label for="letterInput">Write a letter for someone special</label>
+        <textarea id="letterInput" rows="4" maxlength="500"
+          placeholder="Write a little note from the heart..."></textarea>
+
+        <div class="letter-envelope" id="letterEnvelope">
+          <button id="envelopeButton" class="envelope-button" type="button"
+            aria-expanded="false" aria-controls="letterReveal">
+            <span class="envelope-art" aria-hidden="true">
+              <span class="envelope-letter"></span>
+              <span class="envelope-front"></span>
+              <span class="envelope-flap"></span>
+              <span class="envelope-seal">♡</span>
+            </span>
+            <span id="envelopeButtonLabel">Seal letter in envelope</span>
+          </button>
+          <div id="letterReveal" class="letter-reveal" hidden>
+            <div class="letter-paper">
+              <p class="letter-greeting">For someone special,</p>
+              <p id="letterPreview" class="letter-preview"></p>
+            </div>
+          </div>
+          <p id="letterStatus" class="letter-status" aria-live="polite">
+            Your letter stays private in this browser.
+          </p>
+        </div>
+
+        <p class="privacy-note">
+          ♡ Your photos and letter stay in this browser unless you download them.
+          They aren't uploaded to a server by this page.
+        </p>
+      </section>
+      </div>
+
       <div class="result-card">
         <div class="section-heading">
-          <span>02 / OUR PHOTO STRIP</span>
+          <span>03 / OUR PHOTO STRIP</span>
           <span id="shotCount">0 / 4 photos</span>
         </div>
 
@@ -70,6 +181,14 @@
             <span>♡</span>
             <p>Your memories will appear here.</p>
           </div>
+        </div>
+
+        <div id="recordingResult" class="recording-result" hidden>
+          <h3>Your video memory</h3>
+          <video id="recordedVideo" controls playsinline></video>
+          <a id="downloadVideo" class="btn btn-outline full" download>
+            ↓ Download video
+          </a>
         </div>
 
         <p id="resultMessage" class="result-message">
@@ -85,54 +204,9 @@
       </div>
     </section>
 
-    <section class="customize">
-      <div class="section-heading">
-        <span>03 / MAKE IT YOURS</span>
-      </div>
-
-      <label for="filter">Choose your photo filter</label>
-      <div class="filter-list">
-        <button class="filter-option active" data-filter="original">
-          <span class="filter-swatch swatch-original">♡</span>
-          Original
-        </button>
-        <button class="filter-option" data-filter="rosy">
-          <span class="filter-swatch swatch-rosy">♡</span>
-          Rosy
-        </button>
-        <button class="filter-option" data-filter="vintage">
-          <span class="filter-swatch swatch-vintage">♡</span>
-          Vintage
-        </button>
-        <button class="filter-option" data-filter="mono">
-          <span class="filter-swatch swatch-mono">♡</span>
-          B&W
-        </button>
-      </div>
-
-      <label>Choose a sticker</label>
-      <div class="sticker-list">
-        <button class="sticker-option active" data-sticker="♡">♡ Hearts</button>
-        <button class="sticker-option" data-sticker="♥">♥ Love</button>
-        <button class="sticker-option" data-sticker="✿">✿ Flowers</button>
-        <button class="sticker-option" data-sticker="✨">✨ Sparkles</button>
-        <button class="sticker-option" data-sticker="">None</button>
-      </div>
-
-      <label for="caption">Your little love note</label>
-      <input id="caption" type="text" maxlength="50"
-        value="my favorite person ♡"
-        placeholder="Write something sweet...">
-
-      <p class="privacy-note">
-        ♡ Your photos stay in this browser session unless you download them.
-        They aren't uploaded to a server by this page.
-      </p>
-    </section>
-
     <footer>
-      <p>Made with love, for my favorite person ♡</p>
-      <span>you and me, in every little moment.</span>
+      <p>Made for every little moment ♡</p>
+      <span>friends, family, and you.</span>
     </footer>
   </main>
 
