@@ -552,14 +552,84 @@ main {
   background: #fff4f7;
 }
 
-.pose-list {
+.strip-theme-list {
   gap: 8px;
 }
 
-.pose-option {
-  min-width: 90px;
+.strip-theme-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   min-height: 40px;
   padding: 9px 14px;
+}
+
+.theme-swatch {
+  width: 18px;
+  height: 18px;
+  border: 1px solid #00000020;
+  border-radius: 50%;
+}
+
+.theme-swatch-blush {
+  background: #f4afc2;
+}
+
+.theme-swatch-black {
+  background: #171923;
+}
+
+.theme-swatch-blue {
+  background: #317fca;
+}
+
+.theme-swatch-sage {
+  background: #91ad63;
+}
+
+.strip-design-list {
+  gap: 8px;
+}
+
+.strip-design-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 9px 12px;
+}
+
+.design-swatch {
+  display: grid;
+  width: 23px;
+  height: 28px;
+  place-items: center;
+  border: 1px solid #00000020;
+  border-radius: 4px;
+  font-size: 15px;
+}
+
+.design-swatch-classic {
+  background: linear-gradient(90deg, #f4afc2 0 20%, #fff7f6 20% 80%, #f4afc2 80%);
+  color: #a7516e;
+}
+
+.design-swatch-sketchbook {
+  background: #e6decb;
+  color: #443d34;
+}
+
+.design-swatch-noir {
+  background:
+    radial-gradient(#292824 1px, transparent 1px),
+    #e5e1d8;
+  background-size: 5px 5px;
+  color: #292824;
+}
+
+.design-swatch-garden {
+  background: #91ad63;
+  color: #f5f2d5;
 }
 
 .filter-list {

@@ -36,7 +36,8 @@ let cameraStream = null;
 let photos = [];
 let selectedFilter = "original";
 let selectedPhotoCount = 4;
-let selectedPoseStyle = "sweet";
+let selectedStripTheme = "blush";
+let selectedStripDesign = "classic";
 let isTakingPhotos = false;
 let isLetterSealed = false;
 let mediaRecorder = null;
@@ -57,10 +58,69 @@ const FILTERS = {
     mono: "grayscale(1)"
 };
 
-const POSE_STYLES = {
-    sweet: ["Give a little wave ♡", "Make a tiny heart with your hands", "Lean in close", "Share your favorite smile"],
-    playful: ["Make your silliest face", "Throw up a peace sign ✌", "Look surprised!", "Strike your superstar pose ✨"],
-    cozy: ["Rest your cheek on your hand", "Give yourself a gentle hug", "Snuggle in close", "Close your eyes and smile ☁"]
+const POSE_PROMPTS = ["Give a little wave ♡", "Make a tiny heart with your hands", "Lean in close", "Share your favorite smile"];
+
+const STRIP_THEMES = {
+    blush: {
+        outer: "#f4afc2",
+        mat: "#fff7f6",
+        border: "#ef9eb6",
+        innerBorder: "#f7ced8",
+        heading: "#a7516e",
+        secondary: "#bd7189",
+        photoMat: "#f4b0c2",
+        photoBorder: "#fff8f7",
+        heart: "#e98faa",
+        bow: "#f39ab5",
+        bowStroke: "#fff4f7",
+        bowKnot: "#e982a2",
+        shadow: "rgba(111, 51, 72, 0.2)"
+    },
+    black: {
+        outer: "#171923",
+        mat: "#f6f7fa",
+        border: "#343849",
+        innerBorder: "#d8dbe5",
+        heading: "#202333",
+        secondary: "#626a7e",
+        photoMat: "#252938",
+        photoBorder: "#f6f7fa",
+        heart: "#3d4356",
+        bow: "#292d3d",
+        bowStroke: "#f6f7fa",
+        bowKnot: "#555d74",
+        shadow: "rgba(20, 22, 32, 0.24)"
+    },
+    blue: {
+        outer: "#317fca",
+        mat: "#f3f8ff",
+        border: "#5c9add",
+        innerBorder: "#c5ddf7",
+        heading: "#205b99",
+        secondary: "#4b7eaf",
+        photoMat: "#79abe0",
+        photoBorder: "#f3f8ff",
+        heart: "#4188ce",
+        bow: "#4389d1",
+        bowStroke: "#f3f8ff",
+        bowKnot: "#256bb4",
+        shadow: "rgba(32, 82, 137, 0.22)"
+    },
+    sage: {
+        outer: "#91ad63",
+        mat: "#f5f2d5",
+        border: "#718e4a",
+        innerBorder: "#d5dfaa",
+        heading: "#4f6638",
+        secondary: "#73874e",
+        photoMat: "#b7c889",
+        photoBorder: "#fffce7",
+        heart: "#718e4a",
+        bow: "#a6bf72",
+        bowStroke: "#f5f2d5",
+        bowKnot: "#70884a",
+        shadow: "rgba(56, 76, 35, 0.22)"
+    }
 };
 
 function applyVideoFilter() {
@@ -80,7 +140,7 @@ function updateButtons() {
     stopRecordingButton.hidden = !isRecording;
     downloadButton.disabled = photos.length !== selectedPhotoCount;
     retakeButton.disabled = photos.length === 0 && !isTakingPhotos;
-    document.querySelectorAll(".session-count-option, .pose-option").forEach(button => {
+    document.querySelectorAll(".session-count-option, .strip-theme-option, .strip-design-option").forEach(button => {
         button.disabled = isTakingPhotos;
     });
 }
@@ -342,11 +402,9 @@ async function takePhotoSession() {
     updateButtons();
 
     setStatus("Get ready, strike a pose, and make a memory! ♡");
-    const poses = POSE_STYLES[selectedPoseStyle];
-
     try {
         for (let i = 0; i < selectedPhotoCount; i++) {
-            posePrompt.textContent = poses[i];
+            posePrompt.textContent = POSE_PROMPTS[i % POSE_PROMPTS.length];
             for (let number = 3; number >= 1; number--) {
                 if (thisSession !== sessionNumber || !cameraStream) return;
 
@@ -430,12 +488,12 @@ function drawCoverImage(image, x, y, width, height) {
     );
 }
 
-function drawBow(x, y, size) {
+function drawBow(x, y, size, theme) {
     ctx.save();
     ctx.translate(x, y);
     ctx.scale(size / 48, size / 48);
-    ctx.fillStyle = "#f39ab5";
-    ctx.strokeStyle = "#fff4f7";
+    ctx.fillStyle = theme.bow;
+    ctx.strokeStyle = theme.bowStroke;
     ctx.lineWidth = 1.5;
 
     ctx.beginPath();
@@ -452,14 +510,151 @@ function drawBow(x, y, size) {
     ctx.fill();
     ctx.stroke();
 
-    ctx.fillStyle = "#e982a2";
+    ctx.fillStyle = theme.bowKnot;
     ctx.beginPath();
     ctx.arc(24, 24, 3.5, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
 }
 
+function drawStar(x, y, radius, color) {
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    for (let point = 0; point < 10; point++) {
+        const angle = -Math.PI / 2 + point * Math.PI / 5;
+        const distance = point % 2 === 0 ? radius : radius * 0.42;
+        const pointX = x + Math.cos(angle) * distance;
+        const pointY = y + Math.sin(angle) * distance;
+        if (point === 0) ctx.moveTo(pointX, pointY);
+        else ctx.lineTo(pointX, pointY);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+}
+
+function drawDesignDetails(theme, width, height) {
+    if (selectedStripDesign === "noir") {
+        ctx.save();
+        ctx.fillStyle = "#e5e1d8";
+        ctx.fillRect(18, 18, width - 36, height - 36);
+
+        ctx.globalAlpha = 0.13;
+        for (let i = 0; i < 1450; i++) {
+            const x = 25 + (i * 193) % (width - 50);
+            const y = 25 + (i * 317) % (height - 50);
+            const size = i % 7 === 0 ? 2 : 1;
+            ctx.fillStyle = i % 3 === 0 ? "#fffdf6" : "#24231f";
+            ctx.fillRect(x, y, size, size);
+        }
+
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = "#25241f";
+        ctx.lineWidth = 3;
+        ctx.setLineDash([2, 5]);
+        ctx.strokeRect(36, 36, width - 72, height - 72);
+        ctx.setLineDash([]);
+
+        for (let row = 57; row < height - 50; row += 34) {
+            ctx.fillStyle = "#24231f";
+            ctx.fillRect(46, row, 18, 16);
+            ctx.fillRect(width - 64, row, 18, 16);
+            ctx.fillStyle = "#e5e1d8";
+            ctx.fillRect(50, row + 4, 10, 8);
+            ctx.fillRect(width - 60, row + 4, 10, 8);
+        }
+
+        const scribbles = [
+            [76, 222, 15, 20], [width - 76, 355, 11, 17],
+            [76, 485, 13, 19], [width - 76, 615, 16, 22],
+            [76, height - 230, 15, 20]
+        ];
+        scribbles.forEach(([x, y, radius, size], index) => {
+            if (index % 2 === 0) drawStar(x, y, radius, "#24231f");
+            else {
+                ctx.strokeStyle = "#24231f";
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(x - size / 2, y + size / 2);
+                ctx.lineTo(x + size / 2, y - size / 2);
+                ctx.moveTo(x - size / 2, y - size / 3);
+                ctx.lineTo(x + size / 2, y + size / 3);
+                ctx.stroke();
+            }
+        });
+
+        ctx.strokeStyle = "#25241f";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(92, 113);
+        ctx.lineTo(width - 92, 113);
+        ctx.moveTo(92, height - 112);
+        ctx.lineTo(width - 92, height - 112);
+        ctx.stroke();
+        ctx.restore();
+        return;
+    }
+
+    if (selectedStripDesign === "sketchbook") {
+        ctx.save();
+        ctx.globalAlpha = 0.12;
+        for (let i = 0; i < 180; i++) {
+            const x = 42 + (i * 97) % (width - 84);
+            const y = 42 + (i * 173) % (height - 84);
+            ctx.fillStyle = i % 2 === 0 ? theme.heading : theme.secondary;
+            ctx.fillRect(x, y, i % 5 === 0 ? 2 : 1, i % 5 === 0 ? 2 : 1);
+        }
+        ctx.restore();
+
+        ctx.save();
+        ctx.strokeStyle = theme.heading;
+        ctx.globalAlpha = 0.78;
+        ctx.lineWidth = 3;
+        ctx.setLineDash([10, 7]);
+        ctx.strokeRect(40, 40, width - 80, height - 80);
+        ctx.setLineDash([]);
+        drawStar(54, 220, 14, theme.heading);
+        drawStar(width - 54, 365, 12, theme.heading);
+        drawStar(55, height - 235, 16, theme.heading);
+        ctx.font = "bold 20px Georgia, serif";
+        ctx.textAlign = "center";
+        ctx.fillText("✎", width - 54, 220);
+        ctx.fillText("!", 54, 390);
+        ctx.fillText("✦", width - 54, height - 235);
+        ctx.restore();
+        return;
+    }
+
+    if (selectedStripDesign === "garden") {
+        const stars = [
+            [52, 200, 11], [width - 52, 300, 9], [54, 420, 8],
+            [width - 52, 520, 12], [52, height - 220, 10],
+            [width - 54, height - 250, 13]
+        ];
+        stars.forEach(([x, y, radius]) => drawStar(x, y, radius, theme.innerBorder));
+
+        ctx.save();
+        ctx.strokeStyle = theme.secondary;
+        ctx.lineWidth = 4;
+        ctx.lineCap = "round";
+        [[54, 270, 24], [width - 52, 405, -24], [54, height - 340, 25]].forEach(([x, y, lean]) => {
+            ctx.beginPath();
+            ctx.moveTo(x, y + 15);
+            ctx.quadraticCurveTo(x + lean, y, x, y - 15);
+            ctx.stroke();
+            ctx.fillStyle = theme.photoMat;
+            ctx.beginPath();
+            ctx.ellipse(x + lean / 2, y - 6, 8, 14, lean > 0 ? -0.65 : 0.65, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        ctx.restore();
+    }
+}
+
 function renderStrip() {
+    const theme = STRIP_THEMES[selectedStripTheme];
+    const isNoir = selectedStripDesign === "noir";
     const width = 640;
     const height = 265 + selectedPhotoCount * 295;
     const photoX = 88;
@@ -473,71 +668,115 @@ function renderStrip() {
     }
 
     ctx.clearRect(0, 0, width, height);
-    ctx.fillStyle = "#f4afc2";
+    ctx.fillStyle = isNoir ? "#24231f" : theme.outer;
     ctx.fillRect(0, 0, width, height);
 
     // Double-mat background gives the download a printed photo-booth frame.
-    ctx.fillStyle = "#fff7f6";
+    ctx.fillStyle = isNoir ? "#f2efe7" : theme.mat;
     ctx.fillRect(18, 18, width - 36, height - 36);
-    ctx.strokeStyle = "#ef9eb6";
+    ctx.strokeStyle = isNoir ? "#24231f" : theme.border;
     ctx.lineWidth = 3;
     ctx.strokeRect(28, 28, width - 56, height - 56);
-    ctx.strokeStyle = "#f7ced8";
+    ctx.strokeStyle = isNoir ? "#88847b" : theme.innerBorder;
     ctx.lineWidth = 1;
     ctx.strokeRect(35, 35, width - 70, height - 70);
+    drawDesignDetails(theme, width, height);
     stripCanvas.setAttribute("aria-label", `Preview of your ${selectedPhotoCount}-photo decorated photo strip`);
 
-    ctx.fillStyle = "#a7516e";
+    ctx.fillStyle = isNoir ? "#24231f" : theme.heading;
     ctx.textAlign = "center";
-    ctx.font = "bold 27px Georgia, serif";
-    ctx.fillText("♡  OUR LITTLE UNIVERSE  ♡", width / 2, 75);
+    ctx.font = selectedStripDesign === "sketchbook" || isNoir
+        ? "bold 30px Georgia, serif"
+        : "bold 27px Georgia, serif";
+    const heading = isNoir
+        ? "PHOTO DIARY"
+        : selectedStripDesign === "sketchbook"
+            ? "LITTLE MOMENTS"
+            : selectedStripDesign === "garden"
+                ? "A LITTLE STAR GARDEN"
+                : "♡  OUR LITTLE UNIVERSE  ♡";
+    ctx.fillText(heading, width / 2, 75);
 
-    ctx.fillStyle = "#bd7189";
+    ctx.fillStyle = isNoir ? "#5d5a54" : theme.secondary;
     ctx.font = "15px Georgia, serif";
-    ctx.fillText("a little moment to keep", width / 2, 101);
+    ctx.fillText(
+        isNoir
+            ? "little moments, kept forever"
+            : selectedStripDesign === "sketchbook"
+                ? "a page from our story"
+                : "a little moment to keep",
+        width / 2,
+        101
+    );
 
     photos.forEach((photo, index) => {
         const x = photoX;
         const y = firstPhotoY + index * 295;
 
         ctx.save();
-        ctx.shadowColor = "rgba(111, 51, 72, 0.2)";
+        ctx.shadowColor = theme.shadow;
         ctx.shadowBlur = 12;
-        ctx.fillStyle = "#f4b0c2";
-        ctx.fillRect(x - 9, y - 9, photoWidth + 18, photoHeight + 18);
+        ctx.fillStyle = isNoir ? "#24231f" : theme.photoMat;
+        if (selectedStripDesign === "garden") {
+            ctx.beginPath();
+            ctx.roundRect(x - 9, y - 9, photoWidth + 18, photoHeight + 18, 20);
+            ctx.fill();
+        } else {
+            ctx.fillRect(x - 9, y - 9, photoWidth + 18, photoHeight + 18);
+        }
         ctx.shadowBlur = 0;
-        ctx.strokeStyle = "#fff8f7";
-        ctx.lineWidth = 3;
-        ctx.strokeRect(x - 5, y - 5, photoWidth + 10, photoHeight + 10);
+        ctx.strokeStyle = isNoir ? "#f2efe7" : theme.photoBorder;
+        ctx.lineWidth = isNoir ? 5 : 3;
+        if (selectedStripDesign === "garden") {
+            ctx.beginPath();
+            ctx.roundRect(x - 5, y - 5, photoWidth + 10, photoHeight + 10, 17);
+            ctx.stroke();
+        } else {
+            ctx.strokeRect(x - 5, y - 5, photoWidth + 10, photoHeight + 10);
+        }
 
         ctx.beginPath();
-        ctx.rect(x, y, photoWidth, photoHeight);
+        if (selectedStripDesign === "garden") {
+            ctx.roundRect(x, y, photoWidth, photoHeight, 14);
+        } else {
+            ctx.rect(x, y, photoWidth, photoHeight);
+        }
         ctx.clip();
         ctx.filter = FILTERS[selectedFilter] || "none";
         drawCoverImage(photo, x, y, photoWidth, photoHeight);
         ctx.filter = "none";
         ctx.restore();
 
-        const bowX = index % 2 === 0 ? x - 19 : x + photoWidth - 28;
-        const bowY = index % 2 === 0 ? y - 23 : y + photoHeight - 22;
-        drawBow(bowX, bowY, 42);
+        if (selectedStripDesign === "classic") {
+            const bowX = index % 2 === 0 ? x - 19 : x + photoWidth - 28;
+            const bowY = index % 2 === 0 ? y - 23 : y + photoHeight - 22;
+            drawBow(bowX, bowY, 42, theme);
 
-        ctx.fillStyle = "#e98faa";
-        ctx.font = "20px Georgia, serif";
-        ctx.textAlign = "center";
-        ctx.fillText("♡", index % 2 === 0 ? 58 : width - 58, y + photoHeight / 2 + 7);
+            ctx.fillStyle = theme.heart;
+            ctx.font = "20px Georgia, serif";
+            ctx.textAlign = "center";
+            ctx.fillText("♡", index % 2 === 0 ? 58 : width - 58, y + photoHeight / 2 + 7);
+        }
     });
 
     const footerY = height - 83;
-    ctx.fillStyle = "#a7516e";
+    ctx.fillStyle = isNoir ? "#24231f" : theme.heading;
     ctx.textAlign = "center";
     ctx.font = "italic 24px Georgia, serif";
     const caption = captionInput.value.trim() || "a little moment ♡";
     ctx.fillText(caption, width / 2, footerY, width - 70);
 
-    ctx.fillStyle = "#bd7189";
+    ctx.fillStyle = isNoir ? "#5d5a54" : theme.secondary;
     ctx.font = "bold 12px Georgia, serif";
-    ctx.fillText("MADE FOR EVERY LITTLE MOMENT  ♡", width / 2, height - 52);
+    ctx.fillText(
+        isNoir
+            ? "A COLLECTION OF OUR LITTLE MOMENTS"
+            : selectedStripDesign === "sketchbook"
+                ? "COLLECT THE MOMENTS THAT MATTER"
+                : "MADE FOR EVERY LITTLE MOMENT  ♡",
+        width / 2,
+        height - 52
+    );
 
     updatePhotoCount();
 }
@@ -629,6 +868,34 @@ document.querySelectorAll(".filter-option").forEach(button => {
     });
 });
 
+document.querySelectorAll(".strip-theme-option").forEach(button => {
+    button.addEventListener("click", () => {
+        selectedStripTheme = button.dataset.stripTheme || "blush";
+
+        document.querySelectorAll(".strip-theme-option").forEach(option => {
+            const isSelected = option === button;
+            option.classList.toggle("active", isSelected);
+            option.setAttribute("aria-pressed", isSelected ? "true" : "false");
+        });
+
+        renderStrip();
+    });
+});
+
+document.querySelectorAll(".strip-design-option").forEach(button => {
+    button.addEventListener("click", () => {
+        selectedStripDesign = button.dataset.stripDesign || "classic";
+
+        document.querySelectorAll(".strip-design-option").forEach(option => {
+            const isSelected = option === button;
+            option.classList.toggle("active", isSelected);
+            option.setAttribute("aria-pressed", isSelected ? "true" : "false");
+        });
+
+        renderStrip();
+    });
+});
+
 // Update the strip when the love note changes.
 captionInput.addEventListener("input", renderStrip);
 
@@ -678,7 +945,7 @@ window.addEventListener("pagehide", () => {
 });
 
 // Initial state
-document.querySelectorAll(".filter-option, .session-count-option").forEach(button => {
+document.querySelectorAll(".filter-option, .session-count-option, .strip-theme-option, .strip-design-option").forEach(button => {
     button.setAttribute("aria-pressed", button.classList.contains("active") ? "true" : "false");
 });
 
